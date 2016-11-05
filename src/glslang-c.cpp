@@ -71,6 +71,33 @@ const char* GLSLangGetInfoLog(const ShHandle handle) {
     return ShGetInfoLog(handle).c_str();
 }
 
+struct GLSLangActiveInfo {
+    int size;
+    int type;
+    const char *name;
+};
+
+extern "C"
+int GLSLangGetNumActiveUniforms(const ShHandle handle) {
+    return ShGetUniforms(handle)->size();
+}
+
+extern "C"
+struct GLSLangActiveInfo GLSLangGetActiveUniform(const ShHandle handle, int i) {
+    struct GLSLangActiveInfo info;
+
+    info.name = NULL;
+
+    const std::vector<sh::Uniform> uniforms = *ShGetUniforms(handle);
+
+    if (uniforms.size() <= i)
+	return info;
+
+    info.type = uniforms[i].type;
+    info.size = uniforms[i].arraySize;
+    info.name = uniforms[i].name.c_str();
+}
+
 // Returns null-terminated object code for a compiled shader.
 // Parameters:
 // handle: Specifies the compiler

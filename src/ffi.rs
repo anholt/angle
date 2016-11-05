@@ -90,6 +90,13 @@ pub struct ShBuiltInResources {
     pub MaxCallStackDepth: c_int,
 }
 
+#[repr(C)]
+pub struct GLSLangActiveInfo {
+    pub gl_type: c_int,
+    pub size: c_int,
+    pub name: *const c_char,
+}
+
 pub type ShHandle = *mut c_void;
 
 extern {
@@ -104,5 +111,7 @@ extern {
     pub fn GLSLangGetShaderOutputType(handle: ShHandle) -> c_int;
     pub fn GLSLangGetObjectCode(handle: ShHandle) -> *const c_char;
     pub fn GLSLangGetInfoLog(handle: ShHandle) -> *const c_char;
+    pub fn GLSLangGetNumActiveUniforms(handle: ShHandle) -> c_int;
+    pub fn GLSLangGetActiveUniform(handle: ShHandle, i: c_int) -> GLSLangActiveInfo;
 }
 

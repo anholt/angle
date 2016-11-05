@@ -106,6 +106,12 @@ impl BuiltInResources {
 }
 
 
+pub struct ActiveInfo {
+    name: String,
+    gl_type: u32,
+    size: u32,
+}
+
 pub struct ShaderValidator {
     handle: ShHandle,
 }
@@ -168,6 +174,26 @@ impl ShaderValidator {
             let c_str = CStr::from_ptr(GLSLangGetInfoLog(self.handle));
             c_str.to_string_lossy().into_owned()
         }
+    }
+
+    pub fn active_uniforms(&self) -> Vec<ActiveInfo> {
+        let size = unsafe {
+            GLSLangGetNumActiveUniforms(self.handle)
+        } as usize;
+
+        let mut infos = Vec::<ActiveInfo>::with_capacity(size);
+        for i in 0..size {
+            let c_info = unsafe {GLSLangGetActiveUniform(self.handle, i as i32) };
+            let name = unsafe { CStr::from_ptr(c_info.name) };
+
+            infos.push(ActiveInfo {
+                name: name.to_string_lossy().into_owned(),
+                gl_type: c_info.gl_type as u32,
+                size: c_info.size as u32,
+            });
+        }
+
+        infos
     }
 
     pub fn compile_and_translate(&self, strings: &[&str]) -> Result<String, &'static str> {
